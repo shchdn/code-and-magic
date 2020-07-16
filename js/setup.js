@@ -1,5 +1,17 @@
 'use strict';
-(function (){
+(function(){
+    const ESC_KEYCODE = 27;
+    const ENTER_KEYCODE = 13;
+    window.setup = {
+        isEscPress: function(evt){
+            return evt.keyCode === ESC_KEYCODE;
+        },
+        isEnterPress: function(evt){
+            return evt.keyCode === ENTER_KEYCODE;
+        }
+    }
+})();
+(function(){
     var setupDialog = document.querySelector('.setup');
     var setupSimilar = setupDialog.querySelector('.setup-similar');
     var wizardTemplate = document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
@@ -82,41 +94,41 @@
     }
     var onDialogHandleMousedown = function (evt){
         evt.preventDefault();
-        window.startCoords = {
+        var startCoords = {
             x: evt.clientX,
             y: evt.clientY
         };
-        window.dragged = false;
+        var dragged = false;
+        var onSetupDialogMouseMove = function(moveEvt){
+            moveEvt.preventDefault();
+            dragged = true;
+            var shift = {
+                x: startCoords.x - moveEvt.clientX,
+                y: startCoords.y - moveEvt.clientY
+            }
+            startCoords = {
+                x: moveEvt.clientX,
+                y: moveEvt.clientY
+            }
+            setupDialog.style.top = (setupDialog.offsetTop - shift.y) + 'px';
+            setupDialog.style.left = (setupDialog.offsetLeft - shift.x) + 'px';
+        }
+        var onSetupDialogMouseUp = function(){
+            document.removeEventListener('mousemove', onSetupDialogMouseMove);
+            document.removeEventListener('mouseup', onSetupDialogMouseUp);
+            if (dragged) {
+                var onClickPreventDefault = function(evt) {
+                    evt.preventDefault();
+                    dialogHandle.removeEventListener('click', onClickPreventDefault);
+                }
+                dialogHandle.addEventListener('click', onClickPreventDefault);
+            }
+        }
         document.addEventListener('mousemove', onSetupDialogMouseMove);
         document.addEventListener('mouseup', onSetupDialogMouseUp);
     }
-    var onSetupDialogMouseMove = function(moveEvt){
-        moveEvt.preventDefault();
-        dragged = true;
-        var shift = {
-            x: startCoords.x - moveEvt.clientX,
-            y: startCoords.y - moveEvt.clientY
-        }
-        startCoords = {
-            x: moveEvt.clientX,
-            y: moveEvt.clientY
-        }
-        setupDialog.style.top = (setupDialog.offsetTop - shift.y) + 'px';
-        setupDialog.style.left = (setupDialog.offsetLeft - shift.x) + 'px';
-    }
-    var onSetupDialogMouseUp = function(){
-        document.removeEventListener('mousemove', onSetupDialogMouseMove);
-        document.removeEventListener('mouseup', onSetupDialogMouseUp);
-        if (dragged) {
-            var onClickPreventDefault = function(evt) {
-                evt.preventDefault();
-                dialogHandle.removeEventListener('click', onClickPreventDefault);
-            }
-            dialogHandle.addEventListener('click', onClickPreventDefault);
-        }
-    }
     var onSetupDialogUsernameEscPress = function(evt){
-        if (evt.keyCode === 27){
+        if (window.setup.isEscPress(evt)){
             evt.stopPropagation();
         }
     }
@@ -130,7 +142,7 @@
         setupDialogForm.submit();
     }
     var onSetupAvatarEnterPress = function(evt){
-        if (evt.keyCode === 13){
+        if (window.setup.isEnterPress(evt)){
             opensetupDialog();
         }
     }
@@ -138,17 +150,17 @@
         submitSetupDialog();
     }
     var onSetupDialogSubmitEnterPress = function(evt){
-        if (evt.keyCode === 13){
+        if (window.setup.isEnterPress(evt)){
             opensetupDialog();
         }
     }
     var onSetupDialogEnterPress = function(evt){
-        if (evt.keyCode === 13){
+        if (window.setup.isEnterPress(evt)){
             closesetupDialog();
         }
     }
     var onSetupDialogEscPress = function(evt){
-    if (evt.keyCode === 27){
+    if (window.setup.isEscPress(evt)){
             closesetupDialog();
         }
     }
